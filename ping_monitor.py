@@ -126,9 +126,17 @@ class CheckConnection(Thread):
 
     def run(self):
 
-        r = pyping.ping(self.url)
+        try:
 
-        RESPONCE_DATA.update({self.url: r.avg_rtt})
+            r = pyping.ping(self.url)
+
+            RESPONCE_DATA.update({self.url: r.avg_rtt})
+
+        except Exception as e:
+            
+            print(e)
+
+            print("something wrong with hostname: " + self.url)
         
 
 def check_hosts_file(HOSTS_FILE):
@@ -302,6 +310,41 @@ def check_if_rrd_graph_exists_or_create_it(RRD_GRAPH_FOLDER_NAME, RRD_DB_FOLDER_
             del rrd_graph_obj
 
 
+def update_rrd_graph(RRD_GRAPH_FOLDER_NAME, RRD_DB_FOLDER_NAME, HOSTS_LIST):
+
+    for host in HOSTS_LIST:
+
+            hostname = ''.join(host)
+
+            hostname = hostname.replace(".", "")
+
+            path_to_graph = RRD_GRAPH_FOLDER_NAME + "/" + hostname + ".png"
+
+            host_db_name = RRD_DB_FOLDER_NAME + "/" + hostname + ".rrd"
+
+            date_time = datetime.datetime.now()
+            
+            rrdtool.graph(path_to_graph, "-w", "700", "-h", "360", "-a", "PNG", "--slope-mode", "--start", "-86400", "--end", "now",
+
+                          "--font", "WATERMARK:7:Liberation Sans", "--font", "TITLE:15:Liberation Sans",
+
+                          "--font", "AXIS:12:Liberation Sans", "--font", "AXIS:12:Liberation Sans",
+
+                          "--font", "UNIT:12:Liberation Sans", "--font", "LEGEND:12:Liberation Sans",
+
+                          "--title", host, "--watermark", "Generated " + str(date_time),
+
+                          "--vertical-label", "Average rtt", "--lower-limit", "0", "--upper-limit", "999",
+
+                          "--right-axis", "1:0", "--x-grid", "MINUTE:10:HOUR:1:MINUTE:120:0:%R", "--alt-y-grid",
+
+                          "--rigid", "DEF:" + hostname + "=" + host_db_name + ":" + hostname + ":LAST",
+
+                          "HRULE:100#ff0000::dashes=2", "LINE2:" + hostname + "#0000cc:" + hostname,
+
+                          "GPRINT:" + hostname + ":LAST:" + "%6.3lf%s")
+
+
 def generate_html_monitor_page(MONITOR_FILE, RRD_GRAPH_FOLDER_NAME_HTML, RRD_GRAPH_FOLDER_NAME):
 
     monitor_file_obj = FileWorker(MONITOR_FILE)
@@ -326,10 +369,13 @@ def generate_html_monitor_page(MONITOR_FILE, RRD_GRAPH_FOLDER_NAME_HTML, RRD_GRA
 
     page = Environment().from_string(HTML).render(images=GRAPH_LIST)
     
-    with open(MONITOR_FILE, 'r+') as mf:
+    with open(MONITOR_FILE, 'r+') as monitoring_page:
 
-        mf.write(page)
+        monitoring_page.truncate(0)
 
+        monitoring_page.write(page)
+
+    del GRAPH_LIST[:]
 
 def delete_rrd_db_and_graph(hostname, RRD_DB_FOLDER_NAME, RRD_GRAPH_FOLDER_NAME):
 
@@ -369,6 +415,8 @@ def update_hosts_list_and_files(HOSTS_FILE, HOSTS_LIST):
 
             HOSTS_LIST.remove(hostname)
 
+            del RESPONCE_DATA[hostname]
+
             delete_rrd_db_and_graph(hostname, RRD_DB_FOLDER_NAME, RRD_GRAPH_FOLDER_NAME)
 
     del host_file_obj
@@ -405,8 +453,6 @@ if __name__ == "__main__":
 
         check_if_rrd_graph_exists_or_create_it(RRD_GRAPH_FOLDER_NAME, RRD_DB_FOLDER_NAME, HOSTS_LIST)
 
-        generate_html_monitor_page(MONITOR_FILE, RRD_GRAPH_FOLDER_NAME_HTML, RRD_GRAPH_FOLDER_NAME)
-
         while True:
 
             update_hosts_list_and_files(HOSTS_FILE, HOSTS_LIST)
@@ -414,6 +460,10 @@ if __name__ == "__main__":
             get_connection_hosts_info(HOSTS_LIST)
 
             update_rrd_base(RESPONCE_DATA, RRD_DB_FOLDER_NAME)
+
+            update_rrd_graph(RRD_GRAPH_FOLDER_NAME, RRD_DB_FOLDER_NAME, HOSTS_LIST)
+
+            generate_html_monitor_page(MONITOR_FILE, RRD_GRAPH_FOLDER_NAME_HTML, RRD_GRAPH_FOLDER_NAME)
 
             sleep(SLEEP_TIME)
 
