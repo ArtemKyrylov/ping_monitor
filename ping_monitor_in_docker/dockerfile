@@ -1,0 +1,21 @@
+FROM centos:latest
+
+RUN mkdir -p /opt/ping_monitor_sw
+
+COPY ../CentOS7_bin/ping_monitor /opt/ping_monitor_sw/ping_monitor
+RUN chmod +x /opt/ping_monitor/ping_monitor
+
+COPY hosts.txt /opt/ping_monitor_sw/hosts.txt
+
+RUN yum install epel-release -y
+RUN yum update -y
+RUN yum install httpd python python-pip rrdtool python-rrdtool gcc rrdtool-devel python-devel python-jinja2 -y
+RUN pip install pyping rrdtool
+
+EXPOSE 80
+RUN systemctl enable http
+RUN systemctl start http
+
+WORKDIR /opt/ping_monitor_sw
+
+CMD [ "./ping_monitor" ]
