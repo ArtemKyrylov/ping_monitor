@@ -2,7 +2,7 @@ FROM centos:latest
 
 RUN mkdir -p /opt/ping_monitor_sw
 
-COPY ../CentOS7_bin/ping_monitor /opt/ping_monitor_sw/ping_monitor
+COPY /CentOS7_bin/ping_monitor /opt/ping_monitor_sw/ping_monitor
 RUN chmod +x /opt/ping_monitor/ping_monitor
 
 COPY hosts.txt /opt/ping_monitor_sw/hosts.txt
