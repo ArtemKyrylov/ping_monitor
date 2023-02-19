@@ -22,8 +22,8 @@ Monitor page will be refreshed automatically
 5. installed and configured httpd service needed:
 
         yum install httpd -y
-        systemctl enable http
-        systemctl start http
+        systemctl enable httpd
+        systemctl start httpd
         firewall-cmd --permanent --add-port=80/tcp
         firewall-cmd --reload
         
