@@ -5,7 +5,7 @@ RUN mkdir -p /opt/ping_monitor_sw
 COPY CentOS7_bin/ping_monitor /opt/ping_monitor_sw/ping_monitor
 RUN chmod +x /opt/ping_monitor_sw/ping_monitor
 
-COPY hosts.txt /opt/ping_monitor_sw/hosts.txt
+COPY ping_monitor_in_docker/hosts.txt /opt/ping_monitor_sw/hosts.txt
 
 RUN yum install epel-release -y
 RUN yum update -y
