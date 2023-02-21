@@ -7,10 +7,10 @@ RUN chmod +x /opt/ping_monitor_sw/ping_monitor
 
 COPY ping_monitor_in_docker/hosts.txt /opt/ping_monitor_sw/hosts.txt
 
-RUN yum install -y yum-utils
+RUN yum install  -y yum-utils
 RUN yum-config-manager --enable
 RUN yum update -y
-RUN yum install httpd python rrdtool python-rrdtool gcc rrdtool-devel python-devel python-jinja2 -y
+RUN yum install httpd httpd-tools python rrdtool python-rrdtool gcc rrdtool-devel python-devel python-jinja2 -y
 
 RUN yum -y install epel-release && yum clean all
 RUN yum -y install python-pip && yum clean all
@@ -19,9 +19,7 @@ RUN pip install pyping rrdtool
 
 EXPOSE 80
 
-RUN systemctl enable httpd
-
-
 WORKDIR /opt/ping_monitor_sw
 
+CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
 CMD [ "./ping_monitor" ]
