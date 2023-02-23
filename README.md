@@ -51,14 +51,16 @@ Monitor page will be refreshed automatically
      In my case I use Windows machine as main host, on windows I have installed VM with centos and on centos machine I have opened port 80/tcp and docker service            installed.
      
      Build docker image: in main dir "ping_monitor" run docker command
-      - docker build -t ping_monitor_image -f ping_monitor_in_docker/dockerfile .
+     
+          docker build -t ping_monitor_image -f ping_monitor_in_docker/dockerfile .
       
      Start docker container:
-      - docker run -d --name ping_monitor -p 80:80 --rm ping_monitor_image
+     
+           docker run -d --name ping_monitor -p 80:80 --rm ping_monitor_image
       
      You can open VMmachineIP/monitor.html in your windows browser and use script from docker
      
-     !!!!! Warning: don't forget add hosts to hosts.txt !!!!!
+           !!!!! Warning: don't forget add hosts to hosts.txt !!!!!
           
           
         
