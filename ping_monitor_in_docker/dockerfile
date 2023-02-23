@@ -19,4 +19,4 @@ RUN pip install pyping rrdtool
 
 EXPOSE 80
 
-CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+CMD ["/bin/sh", "-c", "trap : TERM INT; /usr/sbin/httpd -D FOREGROUND & (while true; do ./ping_monitor; done) & wait"]
