@@ -1,11 +1,11 @@
 FROM centos:7
 
-RUN mkdir -p /opt/ping_monitor_sw
+WORKDIR /opt/ping_monitor_sw
 
-COPY CentOS7_bin/ping_monitor /opt/ping_monitor_sw/ping_monitor
+COPY CentOS7_bin/ping_monitor .
 RUN chmod +x /opt/ping_monitor_sw/ping_monitor
 
-COPY ping_monitor_in_docker/hosts.txt /opt/ping_monitor_sw/hosts.txt
+COPY ping_monitor_in_docker/hosts.txt .
 
 RUN yum install  -y yum-utils
 RUN yum-config-manager --enable
@@ -19,7 +19,4 @@ RUN pip install pyping rrdtool
 
 EXPOSE 80
 
-WORKDIR /opt/ping_monitor_sw
-
-CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
-CMD [ "./ping_monitor" ]
+CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
